@@ -1,18 +1,16 @@
 import { Model, DataTypes } from 'sequelize';
-import { Role } from '../../interfaces/userInterface';
-import { IUser } from '../../interfaces/index';
 import db from '.';
 
-class Users extends Model implements IUser {
-  declare id: number;
+class Users extends Model {
+  public id: number;
 
-  declare username: string;
+  public username: string;
 
-  declare role: Role;
+  public role: string;
 
-  declare email: string;
+  public email: string;
 
-  declare password: string;
+  public password: string;
 }
 
 Users.init({

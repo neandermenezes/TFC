@@ -1,19 +1,18 @@
 import { Model, DataTypes } from 'sequelize';
 import db from '.';
-import { IMatches } from '../../interfaces/index';
 
-class Matches extends Model implements IMatches {
-  declare id: number;
+class Matches extends Model {
+  public id: number;
 
-  declare home_team: number;
+  public home_team: number;
 
-  declare home_team_goals: number;
+  public home_team_goals: number;
 
-  declare away_team: number;
+  public away_team: number;
 
-  declare away_team_goals: number;
+  public away_team_goals: number;
 
-  declare in_progress: boolean;
+  public in_progress: boolean;
 }
 
 Matches.init({

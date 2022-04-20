@@ -1,12 +1,11 @@
 import { Model, DataTypes } from 'sequelize';
 import db from '.';
-import { ITeams } from '../../interfaces/index';
 import Matches from './matches';
 
-class Teams extends Model implements ITeams {
-  declare id: number;
+class Teams extends Model {
+  public id: number;
 
-  declare team_name: string;
+  public team_name: string;
 }
 
 Teams.init({
