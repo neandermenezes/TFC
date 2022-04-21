@@ -12,20 +12,23 @@ class AuthService {
     this._config = { expiresIn: '25m' };
   }
 
-  authenticate = async (email: string, pass: string) => {
-    const foundUser = await Users.findOne({
-      where: { email },
+  authenticate = async (email: string, password: string) => {
+    const user = await Users.findOne({
+      where: { email, password },
+      attributes: { exclude: ['password'] },
     });
 
-    if (!foundUser || foundUser.password !== pass) return false;
+    if (!user) return false;
 
-    const { password, ...payload } = foundUser;
+    const { ...payload } = user;
 
-    return Jwt.sign(
+    const token = Jwt.sign(
       payload,
       this._secret,
       this._config as Jwt.SignOptions,
     );
+
+    return { user, token };
   };
 
   verifyToken(token: string) {
