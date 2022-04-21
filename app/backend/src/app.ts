@@ -1,9 +1,9 @@
 import * as express from 'express';
 import * as cors from 'cors';
+import loginRouter from './routes/LoginRoutes';
 
 class App {
   public app: express.Express;
-  // ...
 
   constructor() {
     this.app = express();
@@ -21,16 +21,18 @@ class App {
     };
 
     this.app.use(accessControl);
-    // ...
   }
 
-  // ...
+  private routes(): void {
+    this.app.use('/login', loginRouter);
+  }
+
   public start(PORT: string | number): void {
+    this.routes();
     this.app.listen(PORT, () => console.log(`App running on port: ${PORT}`));
   }
 }
 
 export { App };
 
-// A execução dos testes de cobertura depende dessa exportação
 export const { app } = new App();
