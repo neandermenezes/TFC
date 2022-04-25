@@ -22,11 +22,9 @@ class Validations {
 
     if (!validUser) return res.status(401).json({ message: 'Missing authorization' });
 
-    console.log(validUser.dataValues);
     const user = await Users.findOne({
       where: {
         email: validUser.dataValues.email,
-        password: validUser.dataValues.password,
       },
     });
 

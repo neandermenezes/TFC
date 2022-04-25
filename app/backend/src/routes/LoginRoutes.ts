@@ -3,15 +3,15 @@ import Validations from '../middlewares/Validations';
 import LoginController from '../controllers/LoginController';
 import AuthService from '../services/AuthService';
 
-const validations = new Validations();
+const validationsInstance = new Validations();
 
-const authService = new AuthService();
+const authServiceInstance = new AuthService();
 
-const loginController = new LoginController(authService);
+const loginControllerInstance = new LoginController(authServiceInstance);
 
 const loginRouter: express.Router = express.Router();
 
-loginRouter.post('/', validations.login, loginController.login);
-loginRouter.get('/validate', validations.validToken, loginController.validate);
+loginRouter.post('/', validationsInstance.login, loginControllerInstance.login);
+loginRouter.get('/validate', validationsInstance.validToken, loginControllerInstance.validate);
 
 export default loginRouter;
