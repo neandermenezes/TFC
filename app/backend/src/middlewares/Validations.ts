@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import Teams from '../database/models/teams';
 import Users from '../database/models/users';
 import AuthService from '../services/AuthService';
 
@@ -20,17 +21,42 @@ class Validations {
 
     const validUser = authService.verifyToken(authorization);
 
+    console.log(validUser);
+
     if (!validUser) return res.status(401).json({ message: 'Missing authorization' });
 
     const user = await Users.findOne({
       where: {
-        email: validUser.dataValues.email,
+        email: validUser.email,
       },
+      raw: true,
     });
 
     if (!user) return res.status(401).json({ message: 'Incorrect email or password' });
 
     req.body.user = user;
+
+    next();
+  };
+
+  equalTeams = async (req: Request, res: Response, next: NextFunction) => {
+    const { homeTeam, awayTeam } = req.body;
+    console.log(homeTeam, awayTeam);
+    if (homeTeam === awayTeam) {
+      return res.status(401)
+        .json({ message: 'It is not possible to create a match with two equal teams' });
+    }
+
+    next();
+  };
+
+  teamExists = async (req: Request, res: Response, next: NextFunction) => {
+    const { homeTeam, awayTeam } = req.body;
+
+    const teamHome = await Teams.findByPk(homeTeam, { raw: true });
+    const teamAway = await Teams.findByPk(awayTeam, { raw: true });
+
+    if (!teamHome || !teamAway) return res.status(404).json({ message: 'Team not found' });
 
     next();
   };

@@ -25,6 +25,34 @@ class MatchesController {
       next(e);
     }
   };
+
+  createMatch = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { homeTeam, awayTeam, homeTeamGoals, awayTeamGoals, inProgress } = req.body;
+      const match: IMatches = { homeTeam, awayTeam, homeTeamGoals, awayTeamGoals, inProgress };
+
+      const createdMatchId = await this.matchesService
+        .createMatch(match);
+
+      if (!createdMatchId) return res.status(401).json({ message: 'error' });
+
+      return res.status(201).json({ id: createdMatchId, ...match });
+    } catch (e) {
+      next(e);
+    }
+  };
+
+  finishMatch = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.params;
+
+      await this.matchesService.finishMatch(+id);
+
+      return res.status(200).json({ id });
+    } catch (e) {
+      next(e);
+    }
+  };
 }
 
 export default MatchesController;

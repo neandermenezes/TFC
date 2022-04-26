@@ -1,6 +1,7 @@
 import Teams from '../database/models/teams';
 import Matches from '../database/models/matches';
 import Camelizer from '../utils/Camelizer';
+import IMatches from '../interfaces/IMatches';
 
 class MatchesService {
   getAll = async () => {
@@ -45,6 +46,22 @@ class MatchesService {
       .map((match: any) => Camelizer.snakeToCamel(match.dataValues));
 
     return matchesCamelized;
+  };
+
+  createMatch = async (match: IMatches) => {
+    const createdMatch: Matches = await Matches.create({
+      home_team: match.homeTeam,
+      away_team: match.awayTeam,
+      home_team_goals: match.homeTeamGoals,
+      away_team_goals: match.awayTeamGoals,
+      in_progress: match.inProgress,
+    }, { raw: true });
+
+    return createdMatch.id;
+  };
+
+  finishMatch = async (id: number) => {
+    await Matches.update({ in_progress: false }, { where: { id } });
   };
 }
 
