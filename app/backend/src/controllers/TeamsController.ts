@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import TeamsService from '../services/TeamsSerivce';
+import TeamsService from '../services/TeamsService';
 
 class TeamsController {
   constructor(private teamsService: TeamsService) {}

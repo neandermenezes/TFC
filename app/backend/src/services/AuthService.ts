@@ -1,3 +1,4 @@
+import { compareSync } from 'bcryptjs';
 import * as Jwt from 'jsonwebtoken';
 import { readFileSync } from 'fs';
 import Users from '../database/models/users';
@@ -12,15 +13,16 @@ class AuthService {
     this._config = { expiresIn: '25m' };
   }
 
-  authenticate = async (email: string, password: string) => {
-    const user = await Users.findOne({
-      where: { email, password },
-      attributes: { exclude: ['password'] },
-    });
+  authenticate = async (email: string, pass: string) => {
+    const user = await Users.findOne({ where: { email }, raw: true });
 
     if (!user) return false;
 
-    const { ...payload } = user;
+    const isPasswordValid = compareSync(pass, user.password);
+
+    if (!isPasswordValid) return false;
+
+    const { password, ...payload } = user;
 
     const token = Jwt.sign(
       payload,
@@ -28,7 +30,13 @@ class AuthService {
       this._config as Jwt.SignOptions,
     );
 
-    return { user, token };
+    return { user: {
+      id: user.id,
+      username: user.username,
+      role: user.role,
+      email: user.email,
+    },
+    token };
   };
 
   verifyToken(token: string) {

@@ -1,5 +1,5 @@
 import * as express from 'express';
-import TeamsService from '../services/TeamsSerivce';
+import TeamsService from '../services/TeamsService';
 import TeamsController from '../controllers/TeamsController';
 
 const teamsServiceInstance = new TeamsService();
