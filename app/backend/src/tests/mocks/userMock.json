@@ -1,0 +1,9 @@
+{
+  "user": {
+    "id": 1,
+    "username": "Admin",
+    "role": "admin",
+    "email": "admin@admin.com"
+  },
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGFkbWluLmNvbSIsInBhc3N3b3JkIjoiJDJhJDA4JHhpLkh4azFjekFPMG5aUi4uQjM5M3UxMGFFRDBSUTFOM1BBRVhRN0h4dExqS1BFWkJ1LlBXIiwiaWF0IjoxNjUwMzA3NjA0LCJleHAiOjE2NTAzOTQwMDR9.HfVCfPpSu48TW92-rmimGZzmo9ovzeFjoCUrNNohR38"
+}

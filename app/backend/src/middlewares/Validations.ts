@@ -56,8 +56,9 @@ class Validations {
     const teamHome = await Teams.findByPk(homeTeam, { raw: true });
     const teamAway = await Teams.findByPk(awayTeam, { raw: true });
 
-    if (!teamHome || !teamAway) return res.status(404).json({ message: 'Team not found' });
-
+    if (!teamHome || !teamAway) {
+      return res.status(404).json({ message: 'There is no team with such id!' });
+    }
     next();
   };
 }

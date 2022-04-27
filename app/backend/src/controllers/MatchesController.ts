@@ -28,10 +28,10 @@ class MatchesController {
 
   createMatch = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { homeTeam, awayTeam, homeTeamGoals, awayTeamGoals, inProgress } = req.body;
+      const { homeTeam, awayTeam, homeTeamGoals, awayTeamGoals, inProgress }: IMatches = req.body;
       const match: IMatches = { homeTeam, awayTeam, homeTeamGoals, awayTeamGoals, inProgress };
 
-      const createdMatchId = await this.matchesService
+      const createdMatchId: number = await this.matchesService
         .createMatch(match);
 
       if (!createdMatchId) return res.status(401).json({ message: 'error' });
@@ -47,6 +47,19 @@ class MatchesController {
       const { id } = req.params;
 
       await this.matchesService.finishMatch(+id);
+
+      return res.status(200).json({ id });
+    } catch (e) {
+      next(e);
+    }
+  };
+
+  editMatch = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.params;
+      const { homeTeamGoals, awayTeamGoals } = req.body;
+      console.log(homeTeamGoals, awayTeamGoals, 'controller');
+      await this.matchesService.editMatch(+id, homeTeamGoals, awayTeamGoals);
 
       return res.status(200).json({ id });
     } catch (e) {

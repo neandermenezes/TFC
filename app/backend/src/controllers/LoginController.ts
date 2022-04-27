@@ -7,7 +7,7 @@ class LoginController {
   login = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { email, password } = req.body;
-
+      console.log('here');
       const user = await this.authService.authenticate(email, password);
       if (!user) return res.status(401).json({ message: 'Incorrect email or password' });
 

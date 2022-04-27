@@ -24,5 +24,10 @@ matchesRouter.patch(
   validationsInstance.validToken,
   matchesControllerInstance.finishMatch,
 );
+matchesRouter.patch(
+  '/:id',
+  validationsInstance.validToken,
+  matchesControllerInstance.editMatch,
+);
 
 export default matchesRouter;
