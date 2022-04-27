@@ -12,6 +12,9 @@ class App {
     this.config();
     this.app.use(cors());
     this.app.use(express.json());
+    this.app.use('/login', loginRouter);
+    this.app.use('/teams', teamsRouter);
+    this.app.use('/matches', matchesRouter);
   }
 
   private config(): void {
@@ -25,14 +28,7 @@ class App {
     this.app.use(accessControl);
   }
 
-  private routes(): void {
-    this.app.use('/login', loginRouter);
-    this.app.use('/teams', teamsRouter);
-    this.app.use('/matches', matchesRouter);
-  }
-
   public start(PORT: string | number): void {
-    this.routes();
     this.app.listen(PORT, () => console.log(`App running on port: ${PORT}`));
   }
 }

@@ -11,7 +11,17 @@ const loginControllerInstance = new LoginController(authServiceInstance);
 
 const loginRouter: express.Router = express.Router();
 
-loginRouter.post('/', validationsInstance.login, loginControllerInstance.login);
-loginRouter.get('/validate', validationsInstance.validToken, loginControllerInstance.validate);
+loginRouter.post(
+  '/',
+  validationsInstance.login,
+  loginControllerInstance.login,
+  validationsInstance.error,
+);
+loginRouter.get(
+  '/validate',
+  validationsInstance.validToken,
+  loginControllerInstance.validate,
+  validationsInstance.error,
+);
 
 export default loginRouter;

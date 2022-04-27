@@ -1,4 +1,3 @@
-
 import * as sinon from 'sinon';
 import * as chai from 'chai';
 import chaiHttp = require('chai-http');
@@ -13,7 +12,7 @@ chai.use(chaiHttp);
 
 const { expect } = chai;
 
-describe('Testing post /login endpoints', () => {
+describe('/login endpoint', () => {
   describe('Login succeeds', async () => {
     before(async () => {
       sinon.stub(Users, 'findOne')
@@ -38,5 +37,66 @@ describe('Testing post /login endpoints', () => {
 
       expect(response.status).to.equal(200);
     });
-  })
+
+    it('Returns user role', async () => {
+      const response = await chai.request(app).get('/login/validate');
+  
+      expect(response.status).to.equal(401);
+    })
+  });
+
+  describe('Login Fails', () => {
+    before(async () => {
+      sinon.stub(Users, 'findOne')
+      .resolves()
+    });
+
+    after(() => (Users.findOne as sinon.SinonStub).resolves());
+
+    it('Incorrect email', async () => {
+      const body = {
+        email: 'aaaaaa',
+        password: 'secret_admin',
+      }
+
+      const response = await await chai.request(app).post('/login').send(body);
+
+      expect(response.body.message).to.be.equal('Incorrect email or password');
+      expect(response.status).to.equal(401);
+    });
+
+    it('Incorrect password', async () => {
+      const body = {
+        email: 'admin@admin.com',
+        password: 'NOKIATIJOLAO',
+      }
+
+      const response = await chai.request(app).post('/login').send(body)
+
+      expect(response.status).to.equal(401);
+      expect(response.body.message).to.be.equal('Incorrect email or password');
+    });
+
+    it('Empty email', async () => {
+      const body = {
+        password: 'secret_admin',
+      }
+
+      const response = await chai.request(app).post('/login').send(body)
+
+      expect(response.body.message).to.be.equal('All fields must be filled');
+      expect(response.status).to.equal(400);
+    });
+
+    it('Empty password', async () => {
+      const body = {
+        email: 'admin@admin.com',
+      }
+
+      const response = await chai.request(app).post('/login').send(body)
+
+      expect(response.body.message).to.be.equal('All fields must be filled');
+      expect(response.status).to.equal(400);
+    });
+  });
 });

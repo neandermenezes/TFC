@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction, ErrorRequestHandler } from 'express';
 import Teams from '../database/models/teams';
 import Users from '../database/models/users';
 import AuthService from '../services/AuthService';
@@ -60,6 +60,12 @@ class Validations {
       return res.status(404).json({ message: 'There is no team with such id!' });
     }
     next();
+  };
+
+  error: ErrorRequestHandler = (err, _req, res, _next) => {
+    const status = err.status ? err.status : 500;
+
+    return res.status(status).json({ message: err.message });
   };
 }
 
