@@ -19,10 +19,7 @@ class Validations {
 
     if (!authorization) return res.status(401).json({ message: 'Missing authorization' });
 
-    const validUser = authService.verifyToken(authorization);
-
-    console.log(validUser);
-
+    const validUser: any = await authService.verifyToken(authorization);
     if (!validUser) return res.status(401).json({ message: 'Missing authorization' });
 
     const user = await Users.findOne({
@@ -64,6 +61,8 @@ class Validations {
 
   error: ErrorRequestHandler = (err, _req, res, _next) => {
     const status = err.status ? err.status : 500;
+
+    console.log(status);
 
     return res.status(status).json({ message: err.message });
   };

@@ -39,14 +39,14 @@ class AuthService {
     token };
   };
 
-  verifyToken(token: string) {
+  verifyToken = async (token: string) => {
     try {
       const user = <Jwt.JwtPayload>Jwt.verify(token, this._secret);
       return user;
     } catch (e) {
       return false;
     }
-  }
+  };
 }
 
 export default AuthService;
