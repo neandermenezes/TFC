@@ -6,7 +6,7 @@ class LeaderboardController {
 
   getLeaderboard = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const leaderboard = await this.leaderboardService.getLeaderboard();
+      const leaderboard = await this.leaderboardService.getLeaderboardHome();
 
       return res.status(200).json(leaderboard);
     } catch (e) {
