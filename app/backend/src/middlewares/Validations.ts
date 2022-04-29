@@ -60,11 +60,9 @@ class Validations {
   };
 
   error: ErrorRequestHandler = (err, _req, res, _next) => {
-    const status = err.status ? err.status : 500;
+    console.log(err);
 
-    console.log(status);
-
-    return res.status(status).json({ message: err.message });
+    return res.status(500).json({ message: 'FIM.' });
   };
 }
 
