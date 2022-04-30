@@ -1,5 +1,7 @@
+import ILeaderboard from '../interfaces/ILeaderboard';
 import Matches from '../database/models/matches';
 import Teams from '../database/models/teams';
+import { IMatchesSnake } from '../interfaces/IMatches';
 
 const leaderboardStructure = {
   name: '',
@@ -14,6 +16,27 @@ const leaderboardStructure = {
   efficiency: 0,
 };
 class LeaderboardService {
+  private mergeTables = (homeTable: ILeaderboard[], awayTable: ILeaderboard[]) => {
+    const sortedHomeTable = homeTable
+      .sort((a: ILeaderboard, b: ILeaderboard) => a.name.localeCompare(b.name));
+    const sortedAwayTable = awayTable
+      .sort((a: ILeaderboard, b: ILeaderboard) => a.name.localeCompare(b.name));
+    const fullTable = sortedHomeTable.map((home: ILeaderboard, index) => ({
+      name: home.name,
+      totalPoints: home.totalPoints + sortedAwayTable[index].totalPoints,
+      totalGames: home.totalGames + sortedAwayTable[index].totalGames,
+      totalVictories: home.totalVictories + sortedAwayTable[index].totalGames,
+      totalDraws: home.totalDraws + sortedAwayTable[index].totalDraws,
+      totalLosses: home.totalLosses + sortedAwayTable[index].totalLosses,
+      goalsFavor: home.goalsFavor + sortedAwayTable[index].goalsFavor,
+      goalsOwn: home.goalsOwn + sortedAwayTable[index].goalsOwn,
+      goalsBalance: home.goalsBalance + sortedAwayTable[index].goalsBalance,
+      effiency: +((
+        (home.totalPoints + sortedAwayTable[index].totalPoints)
+         / (home.totalGames * sortedAwayTable[index].totalPoints)) * 100).toFixed(2) }));
+    return fullTable;
+  };
+
   private sortTable = (a: any, b: any) => {
     if (b.totalPoints > a.totalPoints) return 1;
     if (b.totalPoints < a.totalPoints) return -1;
@@ -51,10 +74,10 @@ class LeaderboardService {
     return matchResult;
   };
 
-  private getLeaderboardTableHome = (matches: any, teamName: string) => {
+  private getLeaderboardTableHome = (matches: IMatchesSnake[], teamName: string) => {
     const leaderboard = { ...leaderboardStructure };
     leaderboard.name = teamName;
-    matches.forEach((match: any) => {
+    matches.forEach((match: IMatchesSnake) => {
       leaderboard.totalGames += 1;
       const matchResult = this.getWinnerTeam(match.home_team_goals, match.away_team_goals);
       leaderboard.totalVictories += matchResult.totalVictories;
@@ -70,10 +93,10 @@ class LeaderboardService {
     return leaderboard;
   };
 
-  private getLeaderboardTableAway = (matches: any, teamName: string) => {
+  private getLeaderboardTableAway = (matches: IMatchesSnake[], teamName: string) => {
     const leaderboard = { ...leaderboardStructure };
     leaderboard.name = teamName;
-    matches.forEach((match: any) => {
+    matches.forEach((match: IMatchesSnake) => {
       leaderboard.totalGames += 1;
       const matchResult = this.getWinnerTeam(match.away_team_goals, match.home_team_goals);
       leaderboard.totalVictories += matchResult.totalVictories;
@@ -129,17 +152,9 @@ class LeaderboardService {
     const homeTable = await this.getLeaderboardHome();
     const awayTable = await this.getLeaderboardAway();
 
-    let start = 0;
-    const merge = [];
+    const result = this.mergeTables(homeTable, awayTable);
 
-    while (start < homeTable.length) {
-      if (homeTable[start].name === awayTable[start].name) {
-        merge.push({ ...homeTable[start], ...awayTable[start] });
-      }
-      start += 1;
-    }
-    return merge;
-    // return merge.sort(this.sortTable);
+    return result.sort(this.sortTable);
   };
 }
 

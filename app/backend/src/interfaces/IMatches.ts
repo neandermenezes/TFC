@@ -13,4 +13,13 @@ interface IMatches {
   }
 }
 
+export interface IMatchesSnake {
+  id?: number,
+  home_team: number,
+  home_team_goals: number,
+  away_team: number,
+  away_team_goals: number,
+  in_progress: boolean,
+}
+
 export default IMatches;
