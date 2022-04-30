@@ -1,7 +1,18 @@
-/* eslint-disable max-lines-per-function */
 import Matches from '../database/models/matches';
 import Teams from '../database/models/teams';
 
+const leaderboardStructure = {
+  name: '',
+  totalPoints: 0,
+  totalGames: 0,
+  totalVictories: 0,
+  totalDraws: 0,
+  totalLosses: 0,
+  goalsFavor: 0,
+  goalsOwn: 0,
+  goalsBalance: 0,
+  efficiency: 0,
+};
 class LeaderboardService {
   private sortTable = (a: any, b: any) => {
     if (b.totalPoints > a.totalPoints) return 1;
@@ -23,66 +34,56 @@ class LeaderboardService {
   };
 
   private getWinnerTeam = (homeGoals: number, awayGoals: number) => {
-    if (homeGoals > awayGoals) return 'win';
-    if (homeGoals < awayGoals) return 'loss';
-    return 'draw';
+    const matchResult = { totalVictories: 0, totalPoints: 0, totalLosses: 0, totalDraws: 0 };
+    let status = 'win';
+    if (homeGoals > awayGoals) status = 'win';
+    if (homeGoals < awayGoals) status = 'loss';
+    if (homeGoals === awayGoals) status = 'draw';
+    if (status === 'win') {
+      matchResult.totalVictories += 1;
+      matchResult.totalPoints += 3;
+    } else if (status === 'loss') {
+      matchResult.totalLosses += 1;
+    } else {
+      matchResult.totalDraws += 1;
+      matchResult.totalPoints += 1;
+    }
+    return matchResult;
   };
 
-  // private getLeaderboardInfo = (isHome:status: string) => {
-
-  // };
-
-  private getLeaderboardByTeam = (matches: any, isHome: boolean, teamName: string) => {
-    const leaderboard = {
-      teamName,
-      totalPoints: 0,
-      totalGames: 0,
-      totalVictories: 0,
-      totalDraws: 0,
-      totalLosses: 0,
-      goalsFavor: 0,
-      goalsOwn: 0,
-      goalsBalance: 0,
-      efficiency: 0
-    };
-
+  private getLeaderboardTableHome = (matches: any, teamName: string) => {
+    const leaderboard = { ...leaderboardStructure };
+    leaderboard.name = teamName;
     matches.forEach((match: any) => {
       leaderboard.totalGames += 1;
-      if (isHome) {
-        const status = this.getWinnerTeam(match.home_team_goals, match.away_team_goals);
-
-        if (status === 'win') {
-          leaderboard.totalVictories += 1;
-          leaderboard.totalPoints += 3;
-        } else if (status === 'loss') {
-          leaderboard.totalLosses += 1;
-        } else {
-          leaderboard.totalDraws += 1;
-          leaderboard.totalPoints += 1;
-        }
-
-        leaderboard.goalsFavor += match.home_team_goals;
-        leaderboard.goalsOwn += match.away_team_goals;
-      } else {
-        const status = this.getWinnerTeam(match.away_team_goals, match.home_team_goals);
-
-        if (status === 'win') {
-          leaderboard.totalVictories += 1;
-          leaderboard.totalPoints += 3;
-        } else if (status === 'loss') {
-          leaderboard.totalLosses += 1;
-        } else {
-          leaderboard.totalDraws += 1;
-          leaderboard.totalPoints += 1;
-        }
-
-        leaderboard.goalsFavor += match.home_team_goals;
-        leaderboard.goalsOwn += match.away_team_goals;
-      }
+      const matchResult = this.getWinnerTeam(match.home_team_goals, match.away_team_goals);
+      leaderboard.totalVictories += matchResult.totalVictories;
+      leaderboard.totalPoints += matchResult.totalPoints;
+      leaderboard.totalLosses += matchResult.totalLosses;
+      leaderboard.totalDraws += matchResult.totalDraws;
+      leaderboard.goalsFavor += match.home_team_goals;
+      leaderboard.goalsOwn += match.away_team_goals;
     });
-
     leaderboard.goalsBalance = leaderboard.goalsFavor - leaderboard.goalsOwn;
+    leaderboard.efficiency = (leaderboard.totalPoints / (leaderboard.totalGames * 3)) * 100;
+    leaderboard.efficiency = +leaderboard.efficiency.toFixed(2);
+    return leaderboard;
+  };
 
+  private getLeaderboardTableAway = (matches: any, teamName: string) => {
+    const leaderboard = { ...leaderboardStructure };
+    leaderboard.name = teamName;
+    matches.forEach((match: any) => {
+      leaderboard.totalGames += 1;
+      const matchResult = this.getWinnerTeam(match.away_team_goals, match.home_team_goals);
+      leaderboard.totalVictories += matchResult.totalVictories;
+      leaderboard.totalPoints += matchResult.totalPoints;
+      leaderboard.totalLosses += matchResult.totalLosses;
+      leaderboard.totalDraws += matchResult.totalDraws;
+      leaderboard.goalsFavor += match.away_team_goals;
+      leaderboard.goalsOwn += match.home_team_goals;
+    });
+    leaderboard.goalsBalance = leaderboard.goalsFavor - leaderboard.goalsOwn;
     leaderboard.efficiency = (leaderboard.totalPoints / (leaderboard.totalGames * 3)) * 100;
     leaderboard.efficiency = +leaderboard.efficiency.toFixed(2);
     return leaderboard;
@@ -96,40 +97,49 @@ class LeaderboardService {
         in_progress: false,
         home_team: team.id,
       },
+      raw: true,
     })));
 
     const homeClassification = homeMatches
       .map((teamMatches, index) => this
-        .getLeaderboardByTeam(teamMatches, true, teams[index].team_name));
+        .getLeaderboardTableHome(teamMatches, teams[index].team_name));
 
     return homeClassification.sort(this.sortTable);
   };
 
-  getLeaderboard = async () => {
+  getLeaderboardAway = async () => {
     const teams = await Teams.findAll({ raw: true });
-
-    // const homeMatches = await Promise.all(teams.map((team) => Matches.findAll({
-    //   where: {
-    //     in_progress: false,
-    //     home_team: team.id,
-    //   },
-    // })));
 
     const awayMatches = await Promise.all(teams.map((team) => Matches.findAll({
       where: {
         in_progress: false,
         away_team: team.id,
       },
+      raw: true,
     })));
-
-    // const homeClassification = homeMatches
-    //   .map((teamMatches) => this.getLeaderboardByTeam(teamMatches, true));
 
     const awayClassification = awayMatches
       .map((teamMatches, index) => this
-        .getLeaderboardByTeam(teamMatches, false, teams[index].team_name));
+        .getLeaderboardTableAway(teamMatches, teams[index].team_name));
 
-    return awayClassification;
+    return awayClassification.sort(this.sortTable);
+  };
+
+  getAllLeaderboard = async () => {
+    const homeTable = await this.getLeaderboardHome();
+    const awayTable = await this.getLeaderboardAway();
+
+    let start = 0;
+    const merge = [];
+
+    while (start < homeTable.length) {
+      if (homeTable[start].name === awayTable[start].name) {
+        merge.push({ ...homeTable[start], ...awayTable[start] });
+      }
+      start += 1;
+    }
+    return merge;
+    // return merge.sort(this.sortTable);
   };
 }
 

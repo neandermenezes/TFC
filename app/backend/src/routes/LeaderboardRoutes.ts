@@ -9,8 +9,16 @@ const leaderboardControllerInstance = new LeaderboardController(leaderboardServi
 const leaderboardRouter: express.Router = express.Router();
 
 leaderboardRouter.get(
+  '/',
+  leaderboardControllerInstance.getAllLeaderbaord,
+);
+leaderboardRouter.get(
   '/home',
-  leaderboardControllerInstance.getLeaderboard,
+  leaderboardControllerInstance.getLeaderboardHome,
+);
+leaderboardRouter.get(
+  '/away',
+  leaderboardControllerInstance.getLeaderboardAway,
 );
 
 export default leaderboardRouter;
