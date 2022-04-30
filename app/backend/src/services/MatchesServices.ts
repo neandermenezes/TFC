@@ -5,22 +5,21 @@ import IMatches from '../interfaces/IMatches';
 
 class MatchesService {
   getAll = async () => {
-    const matches: Matches[] = await Matches.findAll({
+    const matches = await Matches.findAll({
       include: [
         { model: Teams, as: 'teamHome', attributes: [['team_name', 'teamName']] },
         { model: Teams, as: 'teamAway', attributes: [['team_name', 'teamName']] },
       ],
-      raw: true,
     });
 
     const matchesCamelized: _.Dictionary<string | number>[] = matches
-      .map((match: Matches) => Camelizer.snakeToCamel(match));
+      .map((match: any) => Camelizer.snakeToCamel(match.dataValues));
 
     return matchesCamelized;
   };
 
   getOnGoingMatches = async () => {
-    const matches: any = await Matches.findAll({
+    const matches = await Matches.findAll({
       where: { in_progress: true },
       include: [
         { model: Teams, as: 'teamHome', attributes: [['team_name', 'teamName']] },
@@ -35,7 +34,7 @@ class MatchesService {
   };
 
   getConcludedMatches = async () => {
-    const matches: any = await Matches.findAll({
+    const matches = await Matches.findAll({
       where: { in_progress: false },
       include: [
         { model: Teams, as: 'teamHome', attributes: [['team_name', 'teamName']] },

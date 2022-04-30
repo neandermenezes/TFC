@@ -1,3 +1,4 @@
+/* eslint-disable max-lines-per-function */
 import ILeaderboard from '../interfaces/ILeaderboard';
 import Matches from '../database/models/matches';
 import Teams from '../database/models/teams';
@@ -21,19 +22,20 @@ class LeaderboardService {
       .sort((a: ILeaderboard, b: ILeaderboard) => a.name.localeCompare(b.name));
     const sortedAwayTable = awayTable
       .sort((a: ILeaderboard, b: ILeaderboard) => a.name.localeCompare(b.name));
+    sortedHomeTable.map((table, index) => console.log(table, sortedAwayTable[index], index))
+
     const fullTable = sortedHomeTable.map((home: ILeaderboard, index) => ({
       name: home.name,
       totalPoints: home.totalPoints + sortedAwayTable[index].totalPoints,
       totalGames: home.totalGames + sortedAwayTable[index].totalGames,
-      totalVictories: home.totalVictories + sortedAwayTable[index].totalGames,
+      totalVictories: home.totalVictories + sortedAwayTable[index].totalVictories,
       totalDraws: home.totalDraws + sortedAwayTable[index].totalDraws,
       totalLosses: home.totalLosses + sortedAwayTable[index].totalLosses,
       goalsFavor: home.goalsFavor + sortedAwayTable[index].goalsFavor,
       goalsOwn: home.goalsOwn + sortedAwayTable[index].goalsOwn,
       goalsBalance: home.goalsBalance + sortedAwayTable[index].goalsBalance,
-      effiency: +((
-        (home.totalPoints + sortedAwayTable[index].totalPoints)
-         / (home.totalGames * sortedAwayTable[index].totalPoints)) * 100).toFixed(2) }));
+      efficiency: +((((home.totalPoints + sortedAwayTable[index].totalPoints)
+        / ((home.totalGames + sortedAwayTable[index].totalGames) * 3)) * 100).toFixed(2)) }));
     return fullTable;
   };
 
